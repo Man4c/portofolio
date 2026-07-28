@@ -8,3 +8,8 @@ dist/
 output/
 .playwright-cli/
 *.log
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.env.example
