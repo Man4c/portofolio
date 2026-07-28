@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d2930"/>
+      <stop offset=".55" stop-color="#0a1521"/>
+      <stop offset="1" stop-color="#1d1721"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".25" cy=".2" r=".7">
+      <stop offset="0" stop-color="#66e4d5" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#66e4d5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <rect width="800" height="1000" fill="url(#glow)"/>
+  <g fill="none" stroke="#66e4d5" stroke-opacity=".18">
+    <path d="M-80 760C120 560 215 820 420 640S710 480 900 620"/>
+    <path d="M-80 800C120 600 215 860 420 680S710 520 900 660"/>
+    <path d="M-80 840C120 640 215 900 420 720S710 560 900 700"/>
+  </g>
+  <circle cx="400" cy="380" r="124" fill="#101e2a" stroke="#66e4d5" stroke-opacity=".25" stroke-width="3"/>
+  <path d="M190 820c15-178 82-282 210-282s195 104 210 282" fill="#101e2a" stroke="#66e4d5" stroke-opacity=".25" stroke-width="3"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <text x="400" y="884" fill="#f4f7fb" font-size="26" font-weight="600" letter-spacing="3">FOTO ANDA</text>
+    <text x="400" y="920" fill="#98a6bb" font-family="monospace" font-size="15" letter-spacing="4">800 × 1000 / 4:5</text>
+  </g>
+</svg>
