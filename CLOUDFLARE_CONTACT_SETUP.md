@@ -1,6 +1,6 @@
 # Mengaktifkan formulir kontak
 
-Formulir dikirim ke Cloudflare Pages Function pada endpoint `/api/contact`, kemudian diteruskan ke email melalui Resend.
+Formulir dikirim ke Cloudflare Worker pada endpoint `/api/contact`, kemudian diteruskan ke email melalui Resend. Handler yang sama tetap tersedia sebagai Pages Function untuk kompatibilitas.
 
 ## 1. Buat akun Resend
 
@@ -36,9 +36,9 @@ Tambahkan:
 
 Atur untuk environment Production dan Preview bila keduanya akan digunakan, kemudian lakukan deployment ulang.
 
-## 3. Deploy dengan Git atau Wrangler
+## 3. Deploy sebagai Cloudflare Worker
 
-Folder `functions/` harus berada di root project, sejajar dengan `src/` dan `public/`. Pages Functions tidak ikut aktif bila hanya membuka hasil build secara lokal melalui `index.html`.
+Repository menggunakan `wrangler.jsonc` untuk menjalankan Worker dan menyajikan hasil build Vite sebagai static assets. Route `/api/*` selalu diproses oleh Worker sebelum fallback SPA.
 
 Build command:
 
@@ -46,18 +46,26 @@ Build command:
 npm run build
 ```
 
-Build output:
+Deploy command:
 
 ```text
-dist
+npm run deploy
 ```
+
+Jika menggunakan Git integration pada Workers Builds, pastikan deploy command di Cloudflare adalah:
+
+```text
+npx wrangler deploy
+```
+
+Folder `functions/` dipertahankan untuk deployment Pages lama, tetapi deployment `workers.dev` menggunakan `worker/index.js`.
 
 ## 4. Pengembangan lokal opsional
 
 Salin `.dev.vars.example` menjadi `.dev.vars`, isi API key yang asli, lalu jalankan:
 
 ```text
-npx wrangler pages dev dist
+npm run cf:dev
 ```
 
 Jangan commit `.dev.vars` karena berisi secret.
