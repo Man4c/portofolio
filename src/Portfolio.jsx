@@ -566,13 +566,22 @@ export default function Portfolio() {
               <span className="h-px w-16 bg-gradient-to-r from-sunset/70 to-transparent" />
             </motion.div>
 
-            <p className="mt-5 max-w-2xl text-[18px] leading-8 text-mist">
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: reduceMotion ? 0 : 1.1,
+                duration: reduceMotion ? 0 : 0.62,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="mt-5 max-w-2xl text-[18px] leading-8 text-mist"
+            >
               <span className="font-medium text-white/90">
                 “Mengeksplorasi teknologi, menciptakan solusi.”
               </span>{" "}
               — Menggabungkan kekuatan Laravel, AI, dan Automation untuk membangun
               aplikasi web yang efisien, terstruktur, dan berorientasi pada pengguna.
-            </p>
+            </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 24 }}
