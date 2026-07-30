@@ -51,6 +51,7 @@ import {
 import { duitbotArticle } from "./content/duitbotArticle";
 import { kingsmanArticle } from "./content/kingsmanArticle";
 import { mancocoArticle } from "./content/mancocoArticle";
+import { vibeCodingArticle } from "./content/vibeCodingArticle";
 
 const navItems = [
   { label: "Beranda", href: "#beranda" },
@@ -121,6 +122,10 @@ const blogPosts = [
   {
     ...duitbotArticle,
     article: duitbotArticle,
+  },
+  {
+    ...vibeCodingArticle,
+    article: vibeCodingArticle,
   },
 ];
 
@@ -967,7 +972,7 @@ export default function Portfolio() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.14 }}
           variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          className="mt-14 grid gap-5 lg:grid-cols-3"
+          className="mt-14 grid gap-5 md:grid-cols-2"
         >
           {blogPosts.map((post) => (
             <motion.article
@@ -1382,15 +1387,17 @@ export default function Portfolio() {
                 <X size={19} />
               </button>
 
-              <div className="border-b border-white/10 p-3">
-                <div className="aspect-[2/1] overflow-hidden rounded-[1.35rem] bg-panel sm:rounded-[1.6rem]">
-                  <img
-                    src={selectedArticle.image}
-                    alt={`Tampilan proyek untuk artikel ${selectedArticle.title}`}
-                    className="h-full w-full object-contain object-top"
-                  />
+              {selectedArticle.image && (
+                <div className="border-b border-white/10 p-3">
+                  <div className="aspect-[2/1] overflow-hidden rounded-[1.35rem] bg-panel sm:rounded-[1.6rem]">
+                    <img
+                      src={selectedArticle.image}
+                      alt={`Tampilan proyek untuk artikel ${selectedArticle.title}`}
+                      className="h-full w-full object-contain object-top"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="mx-auto max-w-3xl px-6 py-9 sm:px-10 sm:py-12 md:px-14">
                 <div className="flex flex-wrap items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em]">
@@ -1500,14 +1507,16 @@ export default function Portfolio() {
                     ))}
                   </div>
                   <div className="mt-7 flex flex-wrap gap-3">
-                    <a
-                      href={selectedArticle.projectLink}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-tide px-5 py-3.5 font-display text-sm font-semibold text-ink transition hover:bg-white"
-                    >
-                      Lihat proyek {selectedArticle.projectName} <ArrowUpRight size={16} />
-                    </a>
+                    {selectedArticle.projectLink && (
+                      <a
+                        href={selectedArticle.projectLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-tide px-5 py-3.5 font-display text-sm font-semibold text-ink transition hover:bg-white"
+                      >
+                        Lihat proyek {selectedArticle.projectName} <ArrowUpRight size={16} />
+                      </a>
+                    )}
                     {selectedArticle.botLink && (
                       <a
                         href={selectedArticle.botLink}
