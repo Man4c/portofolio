@@ -1,9 +1,16 @@
 export const vibeCodingArticle = {
+  slug: "sebelum-memulai-vibe-coding",
   category: "Catatan · Engineering Workflow",
   title: "Yang Harus Dilakukan Sebelum Memulai Vibe Coding",
   excerpt:
     "Menyiapkan masalah, scope, arsitektur, dan standar selesai agar AI mempercepat pekerjaan tanpa mengambil alih arah produk.",
   readTime: "8 menit baca",
+  publishedAt: "2026-07-30",
+  updatedAt: "2026-07-30",
+  image: "/blog/vibe-coding-cover.svg",
+  shareImage: "/blog/vibe-coding-cover.png",
+  coverAlt:
+    "Peta persiapan vibe coding dari masalah, scope, arsitektur, hingga implementasi",
   intro:
     "Vibe coding membuat jarak antara ide dan kode terasa sangat pendek. Namun, memulai terlalu cepat dari prompt sering menghasilkan aplikasi yang tampak selesai di permukaan, tetapi rapuh ketika kebutuhan berubah. Sebelum meminta AI menulis satu baris kode, kita perlu menentukan arah yang tidak boleh diputuskan oleh AI.",
   sections: [

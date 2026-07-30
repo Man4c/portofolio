@@ -1,10 +1,15 @@
 export const mancocoArticle = {
+  slug: "mancoco-produk-kampung-ke-pembeli",
   category: "Studi Kasus · Solo Project",
   title: "Mancoco: Membawa Produk Kampung ke Pembeli yang Jauh",
   excerpt:
     "Membangun etalase kepercayaan untuk minyak kelapa asli Mandar tanpa toko online dan tanpa kompleksitas yang belum dibutuhkan.",
   readTime: "8 menit baca",
+  publishedAt: "2026-07-27",
+  updatedAt: "2026-07-30",
   image: "/projects/mancoco.webp",
+  shareImage: "/blog/mancoco-cover.png",
+  coverAlt: "Landing page produk minyak kelapa Mancoco dari Majene",
   projectName: "Mancoco",
   projectLink: "https://mancoco.man4c.workers.dev/",
   repositoryLink: "https://github.com/Man4c/mancoco",

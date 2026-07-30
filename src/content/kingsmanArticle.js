@@ -1,10 +1,15 @@
 export const kingsmanArticle = {
+  slug: "kingsman-sistem-booking-barbershop",
   category: "Studi Kasus · Solo Project",
   title: "KINGSMAN: Sistem Booking Barbershop Tanpa Framework",
   excerpt:
     "Membangun alur booking, perhitungan slot, distribusi barber, rating, dan admin panel sepenuhnya di browser.",
   readTime: "10 menit baca",
+  publishedAt: "2026-07-27",
+  updatedAt: "2026-07-30",
   image: "/projects/kingsman-barbershop.webp",
+  shareImage: "/blog/kingsman-cover.png",
+  coverAlt: "Tampilan sistem booking KINGSMAN Barbershop",
   projectName: "KINGSMAN",
   projectLink: "https://barbershop.man4c.workers.dev/",
   repositoryLink: "https://github.com/Man4c/barbershop",

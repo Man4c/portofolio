@@ -1,0 +1,61 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="88" y1="42" x2="1112" y2="588" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1825"/>
+      <stop offset="0.52" stop-color="#09111C"/>
+      <stop offset="1" stop-color="#13101A"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="188" y1="358" x2="1012" y2="358" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66E4D5"/>
+      <stop offset="1" stop-color="#FF895B"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <path d="M0 150H1200M0 315H1200M0 480H1200M240 0V630M600 0V630M960 0V630" stroke="#AFC0D6" stroke-opacity=".055"/>
+  <circle cx="164" cy="82" r="118" fill="#66E4D5" fill-opacity=".08" filter="url(#glow)"/>
+  <circle cx="1065" cy="555" r="150" fill="#FF895B" fill-opacity=".075" filter="url(#glow)"/>
+
+  <g font-family="'IBM Plex Mono', monospace" font-size="18" font-weight="500" letter-spacing="4">
+    <text x="88" y="92" fill="#66E4D5">CATATAN / ENGINEERING WORKFLOW</text>
+    <text x="1112" y="92" fill="#AFC0D6" fill-opacity=".7" text-anchor="end">FIRMAN.DEV</text>
+  </g>
+
+  <g font-family="'Space Grotesk', Arial, sans-serif" font-weight="700">
+    <text x="88" y="192" fill="#F4F7FB" font-size="64">Sebelum kode dibuat,</text>
+    <text x="88" y="258" fill="#F4F7FB" font-size="64">arahnya harus jelas.</text>
+  </g>
+
+  <path d="M154 404H1046" stroke="url(#flow)" stroke-width="3"/>
+  <path d="M1030 392L1048 404L1030 416" stroke="#FF895B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g font-family="'IBM Plex Mono', monospace" font-size="16" font-weight="500" text-anchor="middle">
+    <g>
+      <circle cx="184" cy="404" r="42" fill="#0B1521" stroke="#66E4D5" stroke-width="2"/>
+      <text x="184" y="410" fill="#66E4D5">01</text>
+      <text x="184" y="484" fill="#AFC0D6" letter-spacing="2">MASALAH</text>
+    </g>
+    <g>
+      <circle cx="460" cy="404" r="42" fill="#0B1521" stroke="#66E4D5" stroke-opacity=".75" stroke-width="2"/>
+      <text x="460" y="410" fill="#66E4D5">02</text>
+      <text x="460" y="484" fill="#AFC0D6" letter-spacing="2">SCOPE</text>
+    </g>
+    <g>
+      <circle cx="736" cy="404" r="42" fill="#0B1521" stroke="#FF895B" stroke-opacity=".75" stroke-width="2"/>
+      <text x="736" y="410" fill="#FF895B">03</text>
+      <text x="736" y="484" fill="#AFC0D6" letter-spacing="2">ARSITEKTUR</text>
+    </g>
+    <g>
+      <circle cx="1012" cy="404" r="42" fill="#0B1521" stroke="#FF895B" stroke-width="2"/>
+      <text x="1012" y="410" fill="#FF895B">04</text>
+      <text x="1012" y="484" fill="#AFC0D6" letter-spacing="2">IMPLEMENTASI</text>
+    </g>
+  </g>
+
+  <g font-family="'IBM Plex Mono', monospace" font-size="15" letter-spacing="3">
+    <text x="88" y="574" fill="#AFC0D6" fill-opacity=".72">MANUSIA MEMEGANG ARAH</text>
+    <text x="1112" y="574" fill="#AFC0D6" fill-opacity=".72" text-anchor="end">AI MEMPERCEPAT PROSES</text>
+  </g>
+</svg>

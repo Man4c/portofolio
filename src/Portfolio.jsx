@@ -1,17 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+  ArrowLeft,
   ArrowUp,
   ArrowUpRight,
   BookOpen,
   BriefcaseBusiness,
+  CalendarDays,
+  Check,
   Clock3,
   Code2,
+  Copy,
   Feather,
   Github,
   Instagram,
   Layers3,
   Linkedin,
+  List,
   Mail,
   MapPin,
   Menu,
@@ -20,6 +25,7 @@ import {
   PenTool,
   Quote,
   Send,
+  Share2,
   Sparkles,
   X,
 } from "lucide-react";
@@ -199,9 +205,37 @@ const reveal = {
 
 // Setelah foto tersedia, taruh filenya di /public lalu ubah path ini.
 const PROFILE_IMAGE = "/profile-firman.webp";
+const SITE_URL = "https://portofolio.man4c.workers.dev";
 const PAGE_CONTAINER = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 const SECTION_SPACING = "py-20 lg:py-24";
 const HERO_SPACING = "pb-20 pt-40 lg:pb-24 lg:pt-44";
+
+const articlePath = (slug) => `/blog/${slug}`;
+
+const getArticleFromPath = (pathname) => {
+  const slug = pathname.match(/^\/blog\/([^/]+)\/?$/)?.[1];
+  return slug ? blogPosts.find((post) => post.slug === slug)?.article ?? null : null;
+};
+
+const formatArticleDate = (date) =>
+  new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00+08:00`));
+
+const sectionAnchor = (title, index) =>
+  `bagian-${index + 1}-${title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")}`;
+
+function setMetaContent(selector, content) {
+  const element = document.head.querySelector(selector);
+  if (element) element.setAttribute("content", content);
+}
 
 function SectionLabel({ children }) {
   return (
@@ -220,10 +254,234 @@ export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("beranda");
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [selectedArticle, setSelectedArticle] = useState(() =>
+    getArticleFromPath(window.location.pathname),
+  );
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [copyFeedback, setCopyFeedback] = useState("");
   const menuButtonRef = useRef(null);
   const firstMenuLinkRef = useRef(null);
+  const articleScrollRef = useRef(null);
+  const articleTitleRef = useRef(null);
   const reduceMotion = useReducedMotion();
+
+  const openArticle = (article, { replace = false } = {}) => {
+    const path = articlePath(article.slug);
+    const state = {
+      article: article.slug,
+      direct: replace ? Boolean(window.history.state?.direct) : false,
+    };
+
+    if (replace) {
+      window.history.replaceState(state, "", path);
+    } else {
+      window.history.pushState(state, "", path);
+    }
+
+    setSelectedArticle(article);
+    setReadingProgress(0);
+    setCopyFeedback("");
+    window.requestAnimationFrame(() => {
+      articleScrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    });
+  };
+
+  const closeArticle = () => {
+    if (window.history.state?.article && !window.history.state?.direct) {
+      window.history.back();
+      return;
+    }
+
+    window.history.replaceState({}, "", "/#blog");
+    setSelectedArticle(null);
+    setReadingProgress(0);
+    window.requestAnimationFrame(() => {
+      document.getElementById("blog")?.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+  };
+
+  const copyArticleLink = async () => {
+    if (!selectedArticle) return;
+
+    const url = `${SITE_URL}${articlePath(selectedArticle.slug)}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      textArea.setAttribute("readonly", "");
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      textArea.remove();
+    }
+
+    setCopyFeedback("Tautan tersalin");
+    window.setTimeout(() => setCopyFeedback(""), 2400);
+  };
+
+  const shareArticle = async () => {
+    if (!selectedArticle) return;
+
+    const shareData = {
+      title: selectedArticle.title,
+      text: selectedArticle.excerpt,
+      url: `${SITE_URL}${articlePath(selectedArticle.slug)}`,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }
+
+    await copyArticleLink();
+  };
+
+  const updateReadingProgress = (event) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+    const scrollableHeight = scrollHeight - clientHeight;
+    setReadingProgress(scrollableHeight > 0 ? (scrollTop / scrollableHeight) * 100 : 100);
+  };
+
+  useEffect(() => {
+    const article = getArticleFromPath(window.location.pathname);
+
+    if (article && !window.history.state?.article) {
+      window.history.replaceState(
+        { article: article.slug, direct: true },
+        "",
+        window.location.href,
+      );
+    }
+
+    const handlePopState = () => {
+      const nextArticle = getArticleFromPath(window.location.pathname);
+      setSelectedArticle(nextArticle);
+      setReadingProgress(0);
+      setCopyFeedback("");
+
+      if (!nextArticle && window.location.hash === "#blog") {
+        window.requestAnimationFrame(() => {
+          document.getElementById("blog")?.scrollIntoView({ block: "start" });
+        });
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    const canonical = document.head.querySelector('link[rel="canonical"]');
+    const articleJsonLd = document.getElementById("article-jsonld");
+
+    if (!selectedArticle) {
+      document.title = "Firman Pratama Putra — Full Stack Developer";
+      canonical?.setAttribute("href", `${SITE_URL}/`);
+      setMetaContent(
+        'meta[name="description"]',
+        "Portofolio Firman Pratama Putra, Full Stack Developer dari Majene yang membangun aplikasi web dengan Laravel, React, Vue, AI, dan automation.",
+      );
+      setMetaContent('meta[property="og:type"]', "website");
+      setMetaContent(
+        'meta[property="og:title"]',
+        "Firman Pratama Putra — Full Stack Developer",
+      );
+      setMetaContent(
+        'meta[property="og:description"]',
+        "Portofolio Full Stack Developer dari Majene yang mengeksplorasi Laravel, React, Vue, AI, dan automation untuk membangun solusi digital.",
+      );
+      setMetaContent('meta[property="og:url"]', `${SITE_URL}/`);
+      setMetaContent(
+        'meta[property="og:image"]',
+        `${SITE_URL}/og/firman-portfolio-og.jpg`,
+      );
+      setMetaContent(
+        'meta[property="og:image:secure_url"]',
+        `${SITE_URL}/og/firman-portfolio-og.jpg`,
+      );
+      setMetaContent('meta[property="og:image:type"]', "image/jpeg");
+      setMetaContent(
+        'meta[property="og:image:alt"]',
+        "Firman Pratama Putra — Full Stack Developer dari Majene",
+      );
+      setMetaContent(
+        'meta[name="twitter:title"]',
+        "Firman Pratama Putra — Full Stack Developer",
+      );
+      setMetaContent(
+        'meta[name="twitter:description"]',
+        "Portofolio Full Stack Developer dari Majene yang membangun solusi digital dengan Laravel, React, Vue, AI, dan automation.",
+      );
+      setMetaContent(
+        'meta[name="twitter:image"]',
+        `${SITE_URL}/og/firman-portfolio-og.jpg`,
+      );
+      setMetaContent(
+        'meta[name="twitter:image:alt"]',
+        "Firman Pratama Putra — Full Stack Developer dari Majene",
+      );
+      articleJsonLd?.remove();
+      return;
+    }
+
+    const url = `${SITE_URL}${articlePath(selectedArticle.slug)}`;
+    const image = `${SITE_URL}${selectedArticle.shareImage ?? selectedArticle.image}`;
+    const title = `${selectedArticle.title} — Firman.dev`;
+
+    document.title = title;
+    canonical?.setAttribute("href", url);
+    setMetaContent('meta[name="description"]', selectedArticle.excerpt);
+    setMetaContent('meta[property="og:type"]', "article");
+    setMetaContent('meta[property="og:title"]', selectedArticle.title);
+    setMetaContent('meta[property="og:description"]', selectedArticle.excerpt);
+    setMetaContent('meta[property="og:url"]', url);
+    setMetaContent('meta[property="og:image"]', image);
+    setMetaContent('meta[property="og:image:secure_url"]', image);
+    setMetaContent('meta[property="og:image:type"]', "image/png");
+    setMetaContent('meta[property="og:image:alt"]', selectedArticle.coverAlt);
+    setMetaContent('meta[name="twitter:title"]', selectedArticle.title);
+    setMetaContent('meta[name="twitter:description"]', selectedArticle.excerpt);
+    setMetaContent('meta[name="twitter:image"]', image);
+    setMetaContent('meta[name="twitter:image:alt"]', selectedArticle.coverAlt);
+
+    const script = articleJsonLd ?? document.createElement("script");
+    script.id = "article-jsonld";
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: selectedArticle.title,
+      description: selectedArticle.excerpt,
+      image,
+      datePublished: selectedArticle.publishedAt,
+      dateModified: selectedArticle.updatedAt,
+      inLanguage: "id-ID",
+      mainEntityOfPage: url,
+      author: {
+        "@type": "Person",
+        name: "Firman Pratama Putra",
+        url: `${SITE_URL}/`,
+      },
+      publisher: {
+        "@type": "Person",
+        name: "Firman Pratama Putra",
+      },
+    });
+    if (!articleJsonLd) document.head.appendChild(script);
+
+    window.requestAnimationFrame(() => articleTitleRef.current?.focus());
+  }, [selectedArticle]);
 
   useEffect(() => {
     const sections = [
@@ -281,7 +539,25 @@ export default function Portfolio() {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         setSelectedProject(null);
-        setSelectedArticle(null);
+        if (selectedArticle) closeArticle();
+      }
+
+      if (event.key === "Tab" && selectedArticle && articleScrollRef.current) {
+        const focusable = [
+          ...articleScrollRef.current.querySelectorAll(
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ].filter((element) => !element.hasAttribute("hidden"));
+        const firstElement = focusable[0];
+        const lastElement = focusable.at(-1);
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement?.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement?.focus();
+        }
       }
     };
 
@@ -986,6 +1262,19 @@ export default function Portfolio() {
                 className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-tide/[0.06] blur-[50px] transition-colors group-hover:bg-tide/[0.1]"
               />
 
+              <div className="relative -mx-7 -mt-7 mb-6 aspect-[16/8] overflow-hidden border-b border-white/10 bg-panel">
+                <img
+                  src={post.image}
+                  alt={post.coverAlt}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-top transition duration-700 group-hover:scale-[1.025]"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-[#0d141f]/35 via-transparent to-transparent"
+                />
+              </div>
+
               <div className="relative flex items-center justify-between">
                 <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-tide">
                   {post.category}
@@ -1002,17 +1291,20 @@ export default function Portfolio() {
                 <p className="mt-4 text-sm leading-7 text-mist">{post.excerpt}</p>
 
                 {post.article ? (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedArticle(post.article)}
+                  <a
+                    href={articlePath(post.slug)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      openArticle(post.article);
+                    }}
                     className="mt-auto flex min-h-11 w-full items-center gap-2 border-t border-white/10 pt-5 text-left font-mono text-[9px] uppercase tracking-[0.16em] text-mist transition-colors hover:text-tide"
                   >
-                    <Clock3 size={14} className="text-sunset" />
-                    {post.readTime}
+                    <CalendarDays size={14} className="text-sunset" />
+                    {formatArticleDate(post.publishedAt)}
                     <span className="ml-auto inline-flex items-center gap-1.5 font-display text-xs font-semibold normal-case tracking-normal text-white">
                       Baca artikel <ArrowUpRight size={14} />
                     </span>
-                  </button>
+                  </a>
                 ) : (
                   <div className="mt-auto flex items-center gap-2 border-t border-white/10 pt-5 font-mono text-[9px] uppercase tracking-[0.16em] text-white/40">
                     <Clock3 size={14} className="text-sunset" />
@@ -1365,23 +1657,43 @@ export default function Portfolio() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.22 }}
-            onClick={() => setSelectedArticle(null)}
+            onClick={closeArticle}
           >
             <motion.article
+              ref={articleScrollRef}
+              data-article-scroll
               role="dialog"
               aria-modal="true"
               aria-labelledby="article-title"
+              onScroll={updateReadingProgress}
               initial={reduceMotion ? false : { opacity: 0, y: 28, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.98 }}
               transition={{ duration: reduceMotion ? 0 : 0.34, ease: [0.22, 1, 0.36, 1] }}
               onClick={(event) => event.stopPropagation()}
-              className="relative max-h-[94vh] w-full max-w-4xl overflow-y-auto rounded-[1.75rem] border border-white/10 bg-[#0b121d] shadow-[0_30px_100px_rgba(0,0,0,.7)] sm:rounded-[2rem]"
+              className="relative max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-[1.75rem] border border-white/10 bg-[#0b121d] shadow-[0_30px_100px_rgba(0,0,0,.7)] sm:rounded-[2rem]"
             >
+              <div
+                className="sticky top-0 z-30 h-1 bg-white/[0.04]"
+                role="progressbar"
+                aria-label="Kemajuan membaca"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow={Math.round(readingProgress)}
+              >
+                <motion.div
+                  data-reading-progress
+                  className="h-full origin-left bg-gradient-to-r from-tide to-sunset"
+                  animate={{ scaleX: readingProgress / 100 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.12 }}
+                />
+              </div>
+
               <button
                 type="button"
-                onClick={() => setSelectedArticle(null)}
-                aria-label="Tutup artikel"
+                onClick={closeArticle}
+                aria-label="Kembali ke Blog"
+                title="Kembali ke Blog"
                 className="absolute right-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-ink/85 text-white backdrop-blur-md transition hover:border-tide/50 hover:text-tide sm:right-6 sm:top-6"
               >
                 <X size={19} />
@@ -1392,14 +1704,23 @@ export default function Portfolio() {
                   <div className="aspect-[2/1] overflow-hidden rounded-[1.35rem] bg-panel sm:rounded-[1.6rem]">
                     <img
                       src={selectedArticle.image}
-                      alt={`Tampilan proyek untuk artikel ${selectedArticle.title}`}
+                      alt={selectedArticle.coverAlt}
                       className="h-full w-full object-contain object-top"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="mx-auto max-w-3xl px-6 py-9 sm:px-10 sm:py-12 md:px-14">
+              <div className="mx-auto min-w-0 max-w-5xl px-6 py-9 sm:px-10 sm:py-12 md:px-14">
+                <button
+                  type="button"
+                  onClick={closeArticle}
+                  className="mb-7 inline-flex min-h-11 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-mist transition hover:text-tide"
+                >
+                  <ArrowLeft size={15} />
+                  Kembali ke Blog
+                </button>
+
                 <div className="flex flex-wrap items-center gap-3 font-mono text-[9px] uppercase tracking-[0.18em]">
                   <span className="text-tide">{selectedArticle.category}</span>
                   <span className="h-1 w-1 rounded-full bg-white/25" />
@@ -1407,11 +1728,18 @@ export default function Portfolio() {
                     <Clock3 size={13} className="text-sunset" />
                     {selectedArticle.readTime}
                   </span>
+                  <span className="h-1 w-1 rounded-full bg-white/25" />
+                  <span className="inline-flex items-center gap-2 text-mist">
+                    <CalendarDays size={13} className="text-tide" />
+                    {formatArticleDate(selectedArticle.publishedAt)}
+                  </span>
                 </div>
 
                 <h2
+                  ref={articleTitleRef}
                   id="article-title"
-                  className="mt-5 max-w-2xl font-display text-3xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-4xl md:text-5xl"
+                  tabIndex="-1"
+                  className="mt-5 max-w-2xl font-display text-3xl font-semibold leading-[1.08] tracking-[-0.045em] focus:outline-none sm:text-4xl md:text-5xl"
                 >
                   {selectedArticle.title}
                 </h2>
@@ -1419,80 +1747,167 @@ export default function Portfolio() {
                   {selectedArticle.intro}
                 </p>
 
-                <div className="mt-12 space-y-12">
-                  {selectedArticle.sections.map((section) => (
-                    <section key={section.title}>
-                      <h3 className="font-display text-2xl font-semibold tracking-[-0.025em] text-white sm:text-3xl">
-                        {section.title}
-                      </h3>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={copyArticleLink}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] px-4 font-display text-xs font-semibold text-white transition hover:border-tide/40 hover:text-tide"
+                  >
+                    {copyFeedback ? <Check size={15} /> : <Copy size={15} />}
+                    {copyFeedback || "Salin tautan"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={shareArticle}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] px-4 font-display text-xs font-semibold text-white transition hover:border-tide/40 hover:text-tide"
+                  >
+                    <Share2 size={15} />
+                    Bagikan
+                  </button>
+                  <span className="inline-flex min-h-11 items-center font-mono text-[9px] uppercase tracking-[0.14em] text-mist">
+                    Diperbarui {formatArticleDate(selectedArticle.updatedAt)}
+                  </span>
+                </div>
 
-                      {section.paragraphs?.map((paragraph) => (
-                        <p key={paragraph} className="mt-4 text-[15px] leading-8 text-mist sm:text-base">
-                          {paragraph}
-                        </p>
-                      ))}
+                <nav
+                  aria-label="Daftar isi artikel"
+                  className="mt-9 rounded-2xl border border-white/10 bg-white/[0.025] p-5 lg:hidden"
+                >
+                  <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-tide">
+                    <List size={15} />
+                    Daftar isi
+                  </p>
+                  <div className="mt-4 grid gap-1">
+                    {selectedArticle.sections.map((section, index) => {
+                      const id = sectionAnchor(section.title, index);
+                      return (
+                        <button
+                          type="button"
+                          key={id}
+                          onClick={() =>
+                            document.getElementById(id)?.scrollIntoView({
+                              behavior: reduceMotion ? "auto" : "smooth",
+                              block: "start",
+                            })
+                          }
+                          className="min-h-11 border-l border-white/10 px-3 py-2 text-left text-sm leading-5 text-mist transition hover:border-tide hover:text-white"
+                        >
+                          {section.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </nav>
 
-                      {section.bullets && (
-                        <ul className="mt-5 space-y-3">
-                          {section.bullets.map((item) => (
-                            <li
-                              key={item}
-                              className="flex gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm leading-6 text-white/80"
-                            >
-                              <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-tide" />
-                              {item}
-                            </li>
+                <div className="mt-12 grid min-w-0 gap-14 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-start">
+                  <div className="min-w-0 space-y-12">
+                    {selectedArticle.sections.map((section, sectionIndex) => {
+                      const id = sectionAnchor(section.title, sectionIndex);
+                      return (
+                        <section key={section.title} id={id} className="scroll-mt-8">
+                          <h3 className="font-display text-2xl font-semibold tracking-[-0.025em] text-white sm:text-3xl">
+                            {section.title}
+                          </h3>
+
+                          {section.paragraphs?.map((paragraph) => (
+                            <p key={paragraph} className="mt-4 text-[15px] leading-8 text-mist sm:text-base">
+                              {paragraph}
+                            </p>
                           ))}
-                        </ul>
-                      )}
 
-                      {section.numbered && (
-                        <ol className="mt-5 space-y-3">
-                          {section.numbered.map((item, index) => (
-                            <li
-                              key={item}
-                              className="flex gap-4 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3.5 text-sm leading-6 text-white/80"
-                            >
-                              <span className="font-mono text-[10px] text-sunset">
-                                {String(index + 1).padStart(2, "0")}
-                              </span>
-                              {item}
-                            </li>
-                          ))}
-                        </ol>
-                      )}
+                          {section.bullets && (
+                            <ul className="mt-5 space-y-3">
+                              {section.bullets.map((item) => (
+                                <li
+                                  key={item}
+                                  className="flex gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-sm leading-6 text-white/80"
+                                >
+                                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-tide" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
 
-                      {section.code && (
-                        <pre className="mt-5 overflow-x-auto rounded-2xl border border-white/10 bg-[#060b12] p-5 font-mono text-xs leading-6 text-tide/80">
-                          <code>{section.code}</code>
-                        </pre>
-                      )}
+                          {section.numbered && (
+                            <ol className="mt-5 space-y-3">
+                              {section.numbered.map((item, index) => (
+                                <li
+                                  key={item}
+                                  className="flex gap-4 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3.5 text-sm leading-6 text-white/80"
+                                >
+                                  <span className="font-mono text-[10px] text-sunset">
+                                    {String(index + 1).padStart(2, "0")}
+                                  </span>
+                                  {item}
+                                </li>
+                              ))}
+                            </ol>
+                          )}
 
-                      {section.note && (
-                        <p className="mt-5 rounded-2xl border border-sunset/20 bg-sunset/[0.06] px-5 py-4 text-sm leading-7 text-white/80">
-                          {section.note}
-                        </p>
-                      )}
+                          {section.code && (
+                            <pre className="mt-5 overflow-x-auto rounded-2xl border border-white/10 bg-[#060b12] p-5 font-mono text-xs leading-6 text-tide/80">
+                              <code>{section.code}</code>
+                            </pre>
+                          )}
 
-                      {section.stats && (
-                        <div className="mt-6 grid grid-cols-3 gap-3">
-                          {section.stats.map((stat) => (
-                            <div
-                              key={stat.label}
-                              className="rounded-2xl border border-tide/15 bg-tide/[0.045] px-3 py-5 text-center"
-                            >
-                              <p className="font-display text-3xl font-semibold text-tide sm:text-4xl">
-                                {stat.value}
-                              </p>
-                              <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-mist">
-                                {stat.label}
-                              </p>
+                          {section.note && (
+                            <p className="mt-5 rounded-2xl border border-sunset/20 bg-sunset/[0.06] px-5 py-4 text-sm leading-7 text-white/80">
+                              {section.note}
+                            </p>
+                          )}
+
+                          {section.stats && (
+                            <div className="mt-6 grid grid-cols-3 gap-3">
+                              {section.stats.map((stat) => (
+                                <div
+                                  key={stat.label}
+                                  className="rounded-2xl border border-tide/15 bg-tide/[0.045] px-3 py-5 text-center"
+                                >
+                                  <p className="font-display text-3xl font-semibold text-tide sm:text-4xl">
+                                    {stat.value}
+                                  </p>
+                                  <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.14em] text-mist">
+                                    {stat.label}
+                                  </p>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </section>
-                  ))}
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+
+                  <nav
+                    aria-label="Daftar isi artikel"
+                    className="sticky top-7 hidden rounded-2xl border border-white/10 bg-[#0a111c]/90 p-5 backdrop-blur lg:block"
+                  >
+                    <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-tide">
+                      <List size={15} />
+                      Daftar isi
+                    </p>
+                    <div className="mt-4 grid gap-1">
+                      {selectedArticle.sections.map((section, index) => {
+                        const id = sectionAnchor(section.title, index);
+                        return (
+                          <button
+                            type="button"
+                            key={id}
+                            onClick={() =>
+                              document.getElementById(id)?.scrollIntoView({
+                                behavior: reduceMotion ? "auto" : "smooth",
+                                block: "start",
+                              })
+                            }
+                            className="border-l border-white/10 px-3 py-2 text-left text-xs leading-5 text-mist transition hover:border-tide hover:text-white"
+                          >
+                            {section.title}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </nav>
                 </div>
 
                 <footer className="mt-14 border-t border-white/10 pt-7">
@@ -1549,6 +1964,41 @@ export default function Portfolio() {
                         Lihat repository
                       </a>
                     )}
+                  </div>
+
+                  <div className="mt-12 border-t border-white/10 pt-8">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-tide">
+                      Lanjut membaca
+                    </p>
+                    <h3 className="mt-3 font-display text-2xl font-semibold tracking-[-0.03em]">
+                      Catatan terkait
+                    </h3>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                      {blogPosts
+                        .filter((post) => post.slug !== selectedArticle.slug)
+                        .slice(0, 2)
+                        .map((post) => (
+                          <a
+                            key={post.slug}
+                            href={articlePath(post.slug)}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              openArticle(post.article, { replace: true });
+                            }}
+                            className="group rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-tide/30 hover:bg-tide/[0.04]"
+                          >
+                            <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-mist">
+                              {formatArticleDate(post.publishedAt)}
+                            </span>
+                            <span className="mt-2 block font-display text-base font-semibold leading-6 text-white transition group-hover:text-tide">
+                              {post.title}
+                            </span>
+                            <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-tide">
+                              Baca catatan <ArrowUpRight size={13} />
+                            </span>
+                          </a>
+                        ))}
+                    </div>
                   </div>
                 </footer>
               </div>

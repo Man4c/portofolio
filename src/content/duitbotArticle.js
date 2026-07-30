@@ -1,10 +1,15 @@
 export const duitbotArticle = {
+  slug: "duitbot-mencatat-pengeluaran-via-chat",
   category: "Studi Kasus · Solo Project",
   title: "DuitBot: Mencatat Pengeluaran Secepat Mengirim Chat",
   excerpt:
     "Membawa pencatatan keuangan ke Telegram agar transaksi kecil tetap tercatat tanpa membuka aplikasi lain.",
   readTime: "11 menit baca",
+  publishedAt: "2026-07-28",
+  updatedAt: "2026-07-30",
   image: "/projects/duitbot.webp",
+  shareImage: "/blog/duitbot-cover.png",
+  coverAlt: "Dashboard DuitBot untuk pencatatan pengeluaran melalui Telegram",
   projectName: "DuitBot",
   projectLink: "https://duitbot-web.onrender.com/",
   repositoryLink: "https://github.com/Man4c/duitbot-tracker",
