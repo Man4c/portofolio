@@ -246,6 +246,19 @@ function SectionLabel({ children }) {
   );
 }
 
+function HorizonDivider() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-5 top-0 flex items-center sm:inset-x-8 lg:inset-x-12"
+    >
+      <span className="h-px flex-1 bg-gradient-to-r from-transparent via-tide/15 to-tide/35" />
+      <span className="mx-3 h-1.5 w-1.5 shrink-0 rounded-full bg-sunset shadow-[0_0_14px_rgba(255,137,91,.55)] sm:mx-4" />
+      <span className="h-px flex-1 bg-gradient-to-r from-tide/35 via-tide/15 to-transparent" />
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [formStatus, setFormStatus] = useState("idle");
@@ -797,7 +810,7 @@ export default function Portfolio() {
         )}
       </motion.header>
 
-      <section id="beranda" className={`${PAGE_CONTAINER} ${HERO_SPACING} relative min-h-[100svh] border-y border-dashed border-tide/50`}>
+      <section id="beranda" className={`${PAGE_CONTAINER} ${HERO_SPACING} relative min-h-[100svh]`}>
         <div className="grid w-full items-center gap-14 lg:grid-cols-[1.28fr_0.72fr] lg:gap-16">
           <div className="relative z-10">
             <motion.div
@@ -991,7 +1004,8 @@ export default function Portfolio() {
         </div>
       </section>
 
-      <section id="tentang" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="tentang" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -1054,7 +1068,8 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      <section id="skills" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="skills" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div
           initial={{ opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1136,7 +1151,8 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      <section id="karya" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="karya" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div variants={reveal} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }}>
           <SectionLabel>Karya Saya</SectionLabel>
           <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
@@ -1223,7 +1239,8 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      <section id="blog" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="blog" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div
           variants={reveal}
           initial="hidden"
@@ -1317,7 +1334,8 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      <section id="testimoni" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="testimoni" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1384,7 +1402,8 @@ export default function Portfolio() {
         </motion.div>
       </section>
 
-      <section id="kontak" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20 border-y border-dashed border-tide/50`}>
+      <section id="kontak" className={`${PAGE_CONTAINER} ${SECTION_SPACING} relative scroll-mt-20`}>
+        <HorizonDivider />
         <motion.div
           initial={{ opacity: 0, y: 48 }}
           whileInView={{ opacity: 1, y: 0 }}
